@@ -36,10 +36,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AchtungHealthComp.cs" />
+    <Compile Include="AchtungMentalComp.cs" />
     <Compile Include="Colonist.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="CrossPromotion.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Initialization.cs" />
     <Compile Include="ModCounter.cs" />
     <Compile Include="ForcedFloatMenuOption.cs" />
     <Compile Include="ForcedJob.cs" />

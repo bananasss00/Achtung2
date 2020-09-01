@@ -21,13 +21,14 @@ namespace AchtungMod
 		static AchtungLoader()
 		{
 			Controller.InstallDefs();
+			Initialization.Init();
 
 			var harmony = new Harmony("net.pardeike.rimworld.mods.achtung");
 			harmony.PatchAll();
 
 			const string sameSpotId = "net.pardeike.rimworld.mod.samespot";
 			IsSameSpotInstalled = harmony.GetPatchedMethods()
-				.Any(method => Harmony.GetPatchInfo(method).Transpilers.Any(transpiler => transpiler.owner == sameSpotId));
+				 .Any(method => Harmony.GetPatchInfo(method).Transpilers.Any(transpiler => transpiler.owner == sameSpotId));
 
 			// multiplayer
 			//
@@ -90,7 +91,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(GenConstruct))]
 	[HarmonyPatch(nameof(GenConstruct.BlocksConstruction))]
-	static class GenConstruct_BlocksConstruction_Patch
+	internal static class GenConstruct_BlocksConstruction_Patch
 	{
 		public static bool Prefix(ref bool __result, Thing t)
 		{
@@ -107,7 +108,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(HaulAIUtility))]
 	[HarmonyPatch(nameof(HaulAIUtility.PawnCanAutomaticallyHaulFast))]
-	static class HaulAIUtility_PawnCanAutomaticallyHaulFast_Patch
+	internal static class HaulAIUtility_PawnCanAutomaticallyHaulFast_Patch
 	{
 		public static bool Prefix(Pawn p, bool forced, ref bool __result)
 		{
@@ -120,6 +121,7 @@ namespace AchtungMod
 					return false;
 				}
 			}
+
 			return true;
 		}
 	}
@@ -157,7 +159,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(WorkGiver_Repair))]
 	[HarmonyPatch(nameof(WorkGiver_Repair.HasJobOnThing))]
-	static class WorkGiver_Repair_HasJobOnThing_Patch
+	internal static class WorkGiver_Repair_HasJobOnThing_Patch
 	{
 		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
@@ -262,7 +264,7 @@ namespace AchtungMod
 
 	[HarmonyPatch(typeof(ReservationManager))]
 	[HarmonyPatch(nameof(ReservationManager.Reserve))]
-	static class ReservationManager_Reserve_Patch
+	internal static class ReservationManager_Reserve_Patch
 	{
 		public static bool CanReserve(ReservationManager reservationManager, Pawn claimant, LocalTargetInfo target, int maxPawns, int stackCount, ReservationLayerDef layer, bool ignoreOtherReservations)
 		{
@@ -278,7 +280,7 @@ namespace AchtungMod
 		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
 			var fromMethod = AccessTools.Method(typeof(ReservationManager), nameof(ReservationManager.CanReserve));
-			var toMethod = AccessTools.Method(typeof(ReservationManager_Reserve_Patch), nameof(ReservationManager_Reserve_Patch.CanReserve));
+			var toMethod = AccessTools.Method(typeof(ReservationManager_Reserve_Patch), nameof(CanReserve));
 			return instructions.MethodReplacer(fromMethod, toMethod);
 		}
 	}
@@ -309,7 +311,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(Pawn_PathFollower))]
 	[HarmonyPatch(nameof(Pawn_PathFollower.TryRecoverFromUnwalkablePosition))]
-	static class Pawn_PathFollower_TryRecoverFromUnwalkablePosition_Patch
+	internal static class Pawn_PathFollower_TryRecoverFromUnwalkablePosition_Patch
 	{
 		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
@@ -335,7 +337,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(WorkGiver_ConstructDeliverResources))]
 	[HarmonyPatch("FindNearbyNeeders")]
-	static class WorkGiver_ConstructDeliverResources_FindNearbyNeeders_Patch
+	internal static class WorkGiver_ConstructDeliverResources_FindNearbyNeeders_Patch
 	{
 		public static IEnumerable<Thing> RadialDistinctThingsAround_Patch(IntVec3 center, Map map, float radius, bool useCenter, Pawn pawn)
 		{
@@ -376,8 +378,10 @@ namespace AchtungMod
 					count++;
 					found++;
 				}
+
 				idx++;
 			}
+
 			if (found != 2)
 				Log.Error("Cannot find both calls to RadialDistinctThingsAround in WorkGiver_ConstructDeliverResources.FindNearbyNeeders");
 
@@ -508,7 +512,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(Pawn_JobTracker))]
 	[HarmonyPatch(nameof(Pawn_JobTracker.EndCurrentJob))]
-	static class Pawn_JobTracker_EndCurrentJob_Patch
+	internal static class Pawn_JobTracker_EndCurrentJob_Patch
 	{
 		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
@@ -529,7 +533,7 @@ namespace AchtungMod
 				if (instruction.OperandIs(m_CleanupCurrentJob) == false)
 					continue;
 
-				if (instrList[i + 1].opcode != OpCodes.Ldarg_2 || (instrList[i + 2].opcode != OpCodes.Brfalse && instrList[i + 2].opcode != OpCodes.Brfalse_S))
+				if (instrList[i + 1].opcode != OpCodes.Ldarg_2 || instrList[i + 2].opcode != OpCodes.Brfalse && instrList[i + 2].opcode != OpCodes.Brfalse_S)
 				{
 					Log.Error("Unexpected opcodes while transpiling Pawn_JobTracker.EndCurrentJob");
 					continue;
@@ -553,8 +557,8 @@ namespace AchtungMod
 		}
 	}
 
-	// check mental levels
-	//
+	// TODO check mental levels
+	/*
 	[HarmonyPatch(typeof(MentalBreaker))]
 	[HarmonyPatch(nameof(MentalBreaker.MentalBreakerTick))]
 	static class MentalBreaker_MentalBreakerTick_Patch
@@ -599,13 +603,13 @@ namespace AchtungMod
 				return;
 			}
 		}
-	}
+	} */
 
 	// release forced work when pawn disappears
 	//
 	[HarmonyPatch(typeof(Pawn))]
 	[HarmonyPatch(nameof(Pawn.DeSpawn))]
-	static class Pawn_DeSpawn_Patch
+	internal static class Pawn_DeSpawn_Patch
 	{
 		public static void Postfix(Pawn __instance)
 		{
@@ -619,7 +623,7 @@ namespace AchtungMod
 	[HarmonyPatch(typeof(PriorityWork))]
 	[HarmonyPatch(nameof(PriorityWork.GetGizmos))]
 	[StaticConstructorOnStartup]
-	static class PriorityWork_GetGizmos_Patch
+	internal static class PriorityWork_GetGizmos_Patch
 	{
 		public static readonly Texture2D ForceRadiusExpand = ContentFinder<Texture2D>.Get("ForceRadiusExpand", true);
 		public static readonly Texture2D ForceRadiusShrink = ContentFinder<Texture2D>.Get("ForceRadiusShrink", true);
@@ -671,7 +675,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(Pawn_JobTracker))]
 	[HarmonyPatch("ShouldStartJobFromThinkTree")]
-	static class Pawn_JobTracker_ShouldStartJobFromThinkTree_Patch
+	internal static class Pawn_JobTracker_ShouldStartJobFromThinkTree_Patch
 	{
 		public static void Postfix(Pawn ___pawn, ref bool __result)
 		{
@@ -698,7 +702,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(Selector))]
 	[HarmonyPatch("HandleMapClicks")]
-	static class Selector_HandleMapClicks_Patch
+	internal static class Selector_HandleMapClicks_Patch
 	{
 		public static bool Prefix()
 		{
@@ -710,7 +714,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(SelectionDrawer))]
 	[HarmonyPatch(nameof(SelectionDrawer.DrawSelectionOverlays))]
-	static class SelectionDrawer_DrawSelectionOverlays_Patch
+	internal static class SelectionDrawer_DrawSelectionOverlays_Patch
 	{
 		public static void Postfix()
 		{
@@ -719,8 +723,8 @@ namespace AchtungMod
 		}
 	}
 
-	// handle gui
-	//
+	// TODO handle gui
+	/*
 	[HarmonyPatch(typeof(ThingOverlays))]
 	[HarmonyPatch(nameof(ThingOverlays.ThingOverlaysOnGUI))]
 	static class ThingOverlays_ThingOverlaysOnGUI_Patch
@@ -730,12 +734,12 @@ namespace AchtungMod
 			if (WorldRendererUtility.WorldRenderedNow == false)
 				Controller.GetInstance().HandleDrawingOnGUI();
 		}
-	}
+	}*/
 
 	// turn some errors into warnings
 	//
 	[HarmonyPatch]
-	static class Errors_To_Warnings_Patch
+	internal static class Errors_To_Warnings_Patch
 	{
 		public static IEnumerable<MethodBase> TargetMethods()
 		{
@@ -755,7 +759,7 @@ namespace AchtungMod
 	//
 	[HarmonyPatch(typeof(Pawn))]
 	[HarmonyPatch(nameof(Pawn.GetInspectString))]
-	static class Pawn_GetInspectString_Patch
+	internal static class Pawn_GetInspectString_Patch
 	{
 		public static void Postfix(Pawn __instance, ref string __result)
 		{
@@ -766,11 +770,11 @@ namespace AchtungMod
 	}
 
 	// custom context menu
-	//
+	//    
 	[HarmonyPatch(typeof(FloatMenuMakerMap))]
 	[HarmonyPatch(nameof(FloatMenuMakerMap.ChoicesAtFor))]
 	[HarmonyPatch(new[] { typeof(Vector3), typeof(Pawn) })]
-	static class FloatMenuMakerMap_ChoicesAtFor_Patch
+	internal static class FloatMenuMakerMap_ChoicesAtFor_Patch
 	{
 		public static void Postfix(List<FloatMenuOption> __result, Vector3 clickPos, Pawn pawn)
 		{

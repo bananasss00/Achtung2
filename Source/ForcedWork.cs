@@ -9,12 +9,12 @@ namespace AchtungMod
 {
 	public class ForcedWork : WorldComponent
 	{
-		Dictionary<Pawn, ForcedJobs> allForcedJobs = new Dictionary<Pawn, ForcedJobs>();
+		private Dictionary<Pawn, ForcedJobs> allForcedJobs = new Dictionary<Pawn, ForcedJobs>();
 		private List<Pawn> forcedJobsKeysWorkingList;
 		private List<ForcedJobs> forcedJobsValuesWorkingList;
 
-		readonly HashSet<Pawn> preparing = new HashSet<Pawn>();
-		readonly Dictionary<Pawn, HashSet<IntVec3>> forbiddenLocations = new Dictionary<Pawn, HashSet<IntVec3>>();
+		private readonly HashSet<Pawn> preparing = new HashSet<Pawn>();
+		private readonly Dictionary<Pawn, HashSet<IntVec3>> forbiddenLocations = new Dictionary<Pawn, HashSet<IntVec3>>();
 
 		public ForcedWork(World world) : base(world)
 		{
@@ -23,10 +23,11 @@ namespace AchtungMod
 		private static List<WorkGiverDef> AllWorkerDefs<T>() where T : class
 		{
 			return DefDatabase<WorkGiverDef>.AllDefsListForReading
-					.Where(def => def.IsOfType<T>()).ToList();
+				 .Where(def => def.IsOfType<T>()).ToList();
 		}
 
-		static readonly List<WorkGiverDef> constructionDefs = AllWorkerDefs<WorkGiver_ConstructDeliverResources>().Concat(AllWorkerDefs<WorkGiver_ConstructFinishFrames>()).ToList();
+		private static readonly List<WorkGiverDef> constructionDefs = AllWorkerDefs<WorkGiver_ConstructDeliverResources>().Concat(AllWorkerDefs<WorkGiver_ConstructFinishFrames>()).ToList();
+
 		public static List<WorkGiverDef> GetCombinedDefs(WorkGiver baseWorkgiver)
 		{
 			if (constructionDefs.Contains(baseWorkgiver.def))
@@ -72,7 +73,7 @@ namespace AchtungMod
 			if (allForcedJobs.TryGetValue(pawn, out var forcedJobs) == false)
 				return false;
 
-			return (forcedJobs.jobs.Count > 0);
+			return forcedJobs.jobs.Count > 0;
 		}
 
 		public ForcedJob GetForcedJob(Pawn pawn)
@@ -143,8 +144,8 @@ namespace AchtungMod
 		public IEnumerable<ForcedJob> ForcedJobsForMap(Map map)
 		{
 			return allForcedJobs
-				.Where(pair => pair.Key.Map == map)
-				.SelectMany(pair => pair.Value.jobs);
+				 .Where(pair => pair.Key.Map == map)
+				 .SelectMany(pair => pair.Value.jobs);
 		}
 
 		public bool IsForbiddenCell(Map map, IntVec3 cell)
@@ -178,7 +179,7 @@ namespace AchtungMod
 		public bool IsForbiddenLocation(IntVec3 cell)
 		{
 			return forbiddenLocations
-				.Any(pair => pair.Value.Contains(cell));
+				 .Any(pair => pair.Value.Contains(cell));
 		}
 
 		public override void ExposeData()
@@ -186,9 +187,9 @@ namespace AchtungMod
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
 				allForcedJobs
-					.Where(pair => pair.Value.jobs.Count == 0)
-					.Select(pair => pair.Key)
-					.Do(pawn => Remove(pawn));
+					 .Where(pair => pair.Value.jobs.Count == 0)
+					 .Select(pair => pair.Key)
+					 .Do(pawn => Remove(pawn));
 			}
 
 			Scribe_Collections.Look(ref allForcedJobs, "joblist", LookMode.Reference, LookMode.Deep, ref forcedJobsKeysWorkingList, ref forcedJobsValuesWorkingList);
@@ -199,9 +200,9 @@ namespace AchtungMod
 					allForcedJobs = new Dictionary<Pawn, ForcedJobs>();
 
 				allForcedJobs
-					.Where(pair => pair.Value.jobs.Count == 0)
-					.Select(pair => pair.Key)
-					.Do(pawn => Remove(pawn));
+					 .Where(pair => pair.Value.jobs.Count == 0)
+					 .Select(pair => pair.Key)
+					 .Do(pawn => Remove(pawn));
 			}
 		}
 	}

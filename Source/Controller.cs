@@ -45,12 +45,12 @@ namespace AchtungMod
 		public static void InstallDefs()
 		{
 			new List<JobDef>
-			{
-				new JobDriver_CleanRoom().MakeDef(),
-				new JobDriver_FightFire().MakeDef(),
-				new JobDriver_SowAll().MakeDef()
-			}
-			.DoIf(def => DefDatabase<JobDef>.GetNamedSilentFail(def.defName) == null, DefDatabase<JobDef>.Add);
+					 {
+						  new JobDriver_CleanRoom().MakeDef(),
+						  new JobDriver_FightFire().MakeDef(),
+						  new JobDriver_SowAll().MakeDef()
+					 }
+				 .DoIf(def => DefDatabase<JobDef>.GetNamedSilentFail(def.defName) == null, DefDatabase<JobDef>.Add);
 		}
 
 		public bool MouseDown(Vector3 pos)
@@ -105,7 +105,7 @@ namespace AchtungMod
 					return true;
 			}
 
-			if (forceMenu || (pawnClicked && achtungPressed == false) || standableClicked == false)
+			if (forceMenu || pawnClicked && achtungPressed == false || standableClicked == false)
 			{
 				if (actions.Count(false) > 0)
 					Find.WindowStack.Add(actions.GetWindow());
@@ -254,7 +254,7 @@ namespace AchtungMod
 		}
 
 		[SyncMethod] // multiplayer
-		static void StartWorkSynced(Type driverType, Pawn pawn, LocalTargetInfo target, LocalTargetInfo clickCell)
+		private static void StartWorkSynced(Type driverType, Pawn pawn, LocalTargetInfo target, LocalTargetInfo clickCell)
 		{
 			var driver = (JobDriver_Thoroughly)Activator.CreateInstance(driverType);
 			driver.StartJob(pawn, target, clickCell);
@@ -287,6 +287,7 @@ namespace AchtungMod
 			return options;
 		}
 
+		// TODO: don't draw if ticking is too slow
 		private static void DrawForcedJobs()
 		{
 			var forcedWork = Find.World.GetComponent<ForcedWork>();

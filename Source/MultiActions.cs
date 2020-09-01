@@ -10,8 +10,8 @@ namespace AchtungMod
 	public class MultiActions
 	{
 		public Vector3 clickPos;
-		readonly List<MultiAction> allActions;
-		int totalColonistsInvolved = 0;
+		private readonly List<MultiAction> allActions;
+		private int totalColonistsInvolved = 0;
 
 		public MultiActions(IEnumerable<Colonist> colonists, Vector3 clickPos)
 		{
@@ -67,7 +67,7 @@ namespace AchtungMod
 			{
 				var colonist = actionForKey.colonist;
 				return actionsForKey.Where(action => action.colonist == colonist)
-					.OrderBy(action => action.IsForced() ? 2 : 1).First();
+						 .OrderBy(action => action.IsForced() ? 2 : 1).First();
 			});
 		}
 
@@ -84,7 +84,7 @@ namespace AchtungMod
 			if (options.All(option =>
 			{
 				var val = compareFunc(option);
-				return val == null || (val as S) == valueToCompare;
+				return val == null || val as S == valueToCompare;
 			}) == false)
 				result = defaultValue;
 			return result;
@@ -112,13 +112,13 @@ namespace AchtungMod
 			var revalidateWorldClickTarget = AllEqual(options, o => o.revalidateWorldClickTarget, o => o.revalidateWorldClickTarget, null);
 
 			var option = new FloatMenuOption(title, delegate
-			{
-				actions.Do(multiAction =>
-				{
-					var colonistAction = multiAction.GetAction();
-					colonistAction();
-				});
-			}, priority, mouseoverGuiAction, revalidateClickTarget, extraPartWidth, extraPartOnGUI, revalidateWorldClickTarget);
+				 {
+					 actions.Do(multiAction =>
+						 {
+							 var colonistAction = multiAction.GetAction();
+							 colonistAction();
+						 });
+				 }, priority, mouseoverGuiAction, revalidateClickTarget, extraPartWidth, extraPartOnGUI, revalidateWorldClickTarget);
 
 			// support for our special force menu options. we need to call all internal
 			// subactions from when the extra buttons calls them
@@ -128,7 +128,7 @@ namespace AchtungMod
 			{
 				option = new ForcedMultiFloatMenuOption(title)
 				{
-					options = options.OfType<ForcedFloatMenuOption>().ToList(),
+					options = options.OfType<ForcedFloatMenuOption>().ToList()
 				};
 				option.extraPartOnGUI = drawRect => ((ForcedMultiFloatMenuOption)option).RenderExtraPartOnGui(drawRect);
 			}
@@ -136,10 +136,10 @@ namespace AchtungMod
 			option.action = delegate
 			{
 				actions.Do(multiAction =>
-				{
-					var colonistAction = multiAction.GetAction();
-					colonistAction();
-				});
+					{
+						var colonistAction = multiAction.GetAction();
+						colonistAction();
+					});
 			};
 			option.Disabled = actions.All(a => a.option.Disabled);
 			option.mouseoverGuiAction = mouseoverGuiAction;

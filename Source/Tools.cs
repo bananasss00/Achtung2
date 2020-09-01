@@ -104,7 +104,7 @@ namespace AchtungMod
 		public static Vector3 RotateBy(Vector3 offsetFromCenter, int rotation, bool was45)
 		{
 			var offset = new Vector3(offsetFromCenter.x, offsetFromCenter.y, offsetFromCenter.z);
-			if ((Math.Abs(rotation) % 90) != 0)
+			if (Math.Abs(rotation) % 90 != 0)
 			{
 				if (was45)
 					offset /= Mathf.Sqrt(2);
@@ -127,8 +127,8 @@ namespace AchtungMod
 					return code == KeyCode.LeftShift || code == KeyCode.RightShift;
 				case AchtungModKey.Meta:
 					return code == KeyCode.LeftWindows || code == KeyCode.RightWindows
-						|| code == KeyCode.LeftCommand || code == KeyCode.RightCommand
-						|| code == KeyCode.LeftApple || code == KeyCode.RightApple;
+																  || code == KeyCode.LeftCommand || code == KeyCode.RightCommand
+																  || code == KeyCode.LeftApple || code == KeyCode.RightApple;
 			}
 			return false;
 		}
@@ -158,12 +158,12 @@ namespace AchtungMod
 
 		public static bool IsOfType<T>(this WorkGiver workgiver) where T : class
 		{
-			return ((workgiver as T) != null);
+			return workgiver as T != null;
 		}
 
 		public static bool IsOfType<T>(this WorkGiverDef def) where T : class
 		{
-			return ((def.Worker as T) != null);
+			return def.Worker as T != null;
 		}
 
 		public static bool Has45DegreeOffset(List<Colonist> colonists)
@@ -171,16 +171,16 @@ namespace AchtungMod
 			return colonists.All(c1 =>
 			{
 				return colonists.All(c2 =>
-				{
-					var delta = c1.pawn.Position - c2.pawn.Position;
-					return ((Math.Abs(delta.x) + Math.Abs(delta.z)) % 2 == 0);
-				});
+					{
+						var delta = c1.pawn.Position - c2.pawn.Position;
+						return (Math.Abs(delta.x) + Math.Abs(delta.z)) % 2 == 0;
+					});
 			});
 		}
 
 		public static bool IsFreeTarget(Pawn pawn, ForcedTarget target)
 		{
-			var allReservations = Tools.Reservations(pawn.Map.reservationManager);
+			var allReservations = Reservations(pawn.Map.reservationManager);
 			return allReservations.Any(res => res.Target.Cell == target.item.Cell && res.Claimant != pawn) == false;
 		}
 
@@ -222,7 +222,6 @@ namespace AchtungMod
 			var isCorner = count == 2 && counts[0] != counts[2];
 			var isRoomCorner = false;
 			if (isCorner)
-			{
 				for (var i = 0; i < 4; i++)
 				{
 					var j = (i + 1) % 4;
@@ -237,7 +236,6 @@ namespace AchtungMod
 						}
 					}
 				}
-			}
 			return new[] { count, isCorner ? 1 : 0, isRoomCorner ? 1 : 0 };
 		}
 
@@ -316,18 +314,18 @@ namespace AchtungMod
 
 		/*public static IEnumerable<IntVec3> AllCells(this LocalTargetInfo item)
 		{
-			if (item.HasThing)
-			{
-				var thing = item.Thing;
-				var size = thing.def.size;
-				if (size.x + size.z == 1)
-					yield return thing.Position;
-				else
-					foreach (var cell in thing.OccupiedRect().Cells)
-						yield return cell;
-				yield break;
-			}
-			yield return item.Cell;
+			 if (item.HasThing)
+			 {
+				  var thing = item.Thing;
+				  var size = thing.def.size;
+				  if (size.x + size.z == 1)
+						yield return thing.Position;
+				  else
+						foreach (var cell in thing.OccupiedRect().Cells)
+							 yield return cell;
+				  yield break;
+			 }
+			 yield return item.Cell;
 		}*/
 
 		public static IEnumerable<IntVec3> AllCells(this Thing thing)
@@ -357,13 +355,13 @@ namespace AchtungMod
 		public static List<Colonist> GetSelectedColonists()
 		{
 			return Find.Selector.SelectedObjects.OfType<Pawn>()
-				.Where(pawn =>
-					pawn.drafter != null
-					&& pawn.IsColonistPlayerControlled
-					&& pawn.Downed == false
-					&& (pawn.jobs?.IsCurrentJobPlayerInterruptible() ?? false))
-				.Select(pawn => new Colonist(pawn))
-				.ToList();
+				 .Where(pawn =>
+					  pawn.drafter != null
+					  && pawn.IsColonistPlayerControlled
+					  && pawn.Downed == false
+					  && (pawn.jobs?.IsCurrentJobPlayerInterruptible() ?? false))
+				 .Select(pawn => new Colonist(pawn))
+				 .ToList();
 		}
 
 		public static bool IsGoHereOption(FloatMenuOption option)
@@ -375,14 +373,14 @@ namespace AchtungMod
 		{
 			var pathGrid = map.pathGrid;
 			var count = 0;
-			(new FloodFiller(map)).FloodFill(pos + direction, cell =>
+			new FloodFiller(map).FloodFill(pos + direction, cell =>
 			{
 				return cell != pos && pathGrid.Walkable(cell);
 			}, (cell, len) =>
-			{
-				count++;
-				return count >= maxCount;
-			});
+				 {
+					 count++;
+					 return count >= maxCount;
+				 });
 			return count;
 		}
 
@@ -391,17 +389,17 @@ namespace AchtungMod
 			var gotDrafted = false;
 			var gotUndrafted = false;
 			colonists.DoIf(colonist => colonist.pawn.Drafted == false,
-				colonist =>
-				{
-					var oldStatus = SetDraftStatus(colonist.pawn, draftStatus, false);
-					if (oldStatus != draftStatus)
-					{
-						if (draftStatus)
-							gotDrafted = true;
-						else
-							gotUndrafted = true;
-					}
-				});
+				 colonist =>
+				 {
+					 var oldStatus = SetDraftStatus(colonist.pawn, draftStatus, false);
+					 if (oldStatus != draftStatus)
+					 {
+						 if (draftStatus)
+							 gotDrafted = true;
+						 else
+							 gotUndrafted = true;
+					 }
+				 });
 			if (gotDrafted)
 				SoundDefOf.DraftOn.PlayOneShotOnCamera(null);
 			if (gotUndrafted)
@@ -422,9 +420,7 @@ namespace AchtungMod
 					gotUndrafted = true;
 				colonist.pawn.mindState.priorityWork.Clear();
 				if (colonist.pawn.jobs?.curJob != null && colonist.pawn.jobs.IsCurrentJobPlayerInterruptible())
-				{
 					colonist.pawn.jobs.EndCurrentJob(JobCondition.InterruptForced);
-				}
 			});
 			if (gotDrafted)
 				SoundDefOf.DraftOn.PlayOneShotOnCamera(null);
@@ -482,8 +478,8 @@ namespace AchtungMod
 				return;
 
 			newWorker.Map.mapPawns
-				.PawnsInFaction(Faction.OfPlayer)
-				.DoIf(pawn => pawn.jobs?.curJob != null && forcedWork.HasForcedJob(pawn) == false, pawn =>
+				 .PawnsInFaction(Faction.OfPlayer)
+				 .DoIf(pawn => pawn.jobs?.curJob != null && forcedWork.HasForcedJob(pawn) == false, pawn =>
 				 {
 					 var isForced = pawn.jobs.curJob.playerForced;
 					 var hasTarget = pawn.jobs.curJob.AnyTargetIs(workItem);
@@ -491,7 +487,7 @@ namespace AchtungMod
 					 if (isForced && hasTarget && destination == workItem)
 					 {
 						 pawn.ClearReservationsForJob(pawn.CurJob);
-						 pawn.jobs.EndCurrentJob(Verse.AI.JobCondition.InterruptForced, false);
+						 pawn.jobs.EndCurrentJob(JobCondition.InterruptForced, false);
 						 forcedWork.Remove(pawn);
 					 }
 				 });

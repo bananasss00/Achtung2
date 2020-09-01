@@ -43,35 +43,36 @@ namespace AchtungMod
 		public bool isThingJob = false;
 		public bool initialized = false;
 		public int cellRadius = 0;
-		static readonly Dictionary<BuildableDef, int> TypeScores = new Dictionary<BuildableDef, int>
-		{
-			{ ThingDefOf.PowerConduit, 1000 },
-			{ ThingDefOf.Wall, 900 },
-			{ ThingDefOf.TrapSpike, 300 },
-			{ ThingDefOf.Sandbags, 200 },
-			{ ThingDefOf.Turret_MiniTurret, 150 },
-			{ ThingDefOf.Door, 50 },
-			{ ThingDefOf.Bed, 10 },
-			{ ThingDefOf.Bedroll, 9 },
-			{ ThingDefOf.Campfire, 6 },
-			{ ThingDefOf.TorchLamp, 6 },
-			{ ThingDefOf.Table2x2c, 6 },
-			{ ThingDefOf.DiningChair, 6 },
-			{ ThingDefOf.Battery, 5 },
-			{ ThingDefOf.WoodFiredGenerator, 5 },
-			{ ThingDefOf.SolarGenerator, 5 },
-			{ ThingDefOf.WindTurbine, 5 },
-			{ ThingDefOf.GeothermalGenerator, 5 },
-			{ ThingDefOf.WatermillGenerator, 5 },
-			{ ThingDefOf.Cooler, 2 },
-			{ ThingDefOf.Heater, 2 },
-			{ ThingDefOf.FirefoamPopper, 2 },
-			{ ThingDefOf.PassiveCooler, 2 },
-			{ ThingDefOf.Turret_Mortar, 2 },
-			{ ThingDefOf.StandingLamp, 1 },
-			{ ThingDefOf.PlantPot, 1 },
-			{ ThingDefOf.Grave, 1 },
-		};
+
+		private static readonly Dictionary<BuildableDef, int> TypeScores = new Dictionary<BuildableDef, int>
+		  {
+				{ ThingDefOf.PowerConduit, 1000 },
+				{ ThingDefOf.Wall, 900 },
+				{ ThingDefOf.TrapSpike, 300 },
+				{ ThingDefOf.Sandbags, 200 },
+				{ ThingDefOf.Turret_MiniTurret, 150 },
+				{ ThingDefOf.Door, 50 },
+				{ ThingDefOf.Bed, 10 },
+				{ ThingDefOf.Bedroll, 9 },
+				{ ThingDefOf.Campfire, 6 },
+				{ ThingDefOf.TorchLamp, 6 },
+				{ ThingDefOf.Table2x2c, 6 },
+				{ ThingDefOf.DiningChair, 6 },
+				{ ThingDefOf.Battery, 5 },
+				{ ThingDefOf.WoodFiredGenerator, 5 },
+				{ ThingDefOf.SolarGenerator, 5 },
+				{ ThingDefOf.WindTurbine, 5 },
+				{ ThingDefOf.GeothermalGenerator, 5 },
+				{ ThingDefOf.WatermillGenerator, 5 },
+				{ ThingDefOf.Cooler, 2 },
+				{ ThingDefOf.Heater, 2 },
+				{ ThingDefOf.FirefoamPopper, 2 },
+				{ ThingDefOf.PassiveCooler, 2 },
+				{ ThingDefOf.Turret_Mortar, 2 },
+				{ ThingDefOf.StandingLamp, 1 },
+				{ ThingDefOf.PlantPot, 1 },
+				{ ThingDefOf.Grave, 1 }
+		  };
 
 		public ForcedJob()
 		{
@@ -95,7 +96,7 @@ namespace AchtungMod
 			var validTargets = onlyValid ? targets.Where(target => target.IsValidTarget()) : targets;
 			if (isThingJob)
 				return validTargets
-					.SelectMany(target => target.item.ThingDestroyed ? null : target.item.Thing.AllCells());
+					 .SelectMany(target => target.item.ThingDestroyed ? null : target.item.Thing.AllCells());
 			else
 				return validTargets.Select(target => target.item.Cell);
 		}
@@ -136,9 +137,9 @@ namespace AchtungMod
 		{
 			var mapWidth = pawn.Map.Size.x;
 			return targets
-				.Where(target => target.IsValidTarget() && Tools.IsFreeTarget(pawn, target))
-				.OrderByDescending(target => target.materialScore)
-				.Select(target => target.item.Thing);
+				 .Where(target => target.IsValidTarget() && Tools.IsFreeTarget(pawn, target))
+				 .OrderByDescending(target => target.materialScore)
+				 .Select(target => target.item.Thing);
 		}
 
 		public IEnumerable<LocalTargetInfo> GetSortedTargets(HashSet<int> planned)
@@ -147,19 +148,19 @@ namespace AchtungMod
 			var pathGrid = map.pathGrid;
 			var mapWidth = map.Size.x;
 			return targets
-				.Where(target =>
-				{
-					var vec = target.item.Cell;
-					var idx = CellIndicesUtility.CellToIndex(vec.x, vec.z, mapWidth);
-					return planned.Contains(idx) == false && target.IsValidTarget() && Tools.IsFreeTarget(pawn, target);
-				})
-				.OrderByDescending(target =>
-				{
-					var willBlock = target.item.WillBlock();
-					var neighbourScore = willBlock ? Tools.NeighbourScore(target.item.Cell, pathGrid, mapWidth, planned) : 100;
-					return neighbourScore * 10000 + target.materialScore;
-				})
-				.Select(target => target.item);
+				 .Where(target =>
+				 {
+					 var vec = target.item.Cell;
+					 var idx = CellIndicesUtility.CellToIndex(vec.x, vec.z, mapWidth);
+					 return planned.Contains(idx) == false && target.IsValidTarget() && Tools.IsFreeTarget(pawn, target);
+				 })
+				 .OrderByDescending(target =>
+				 {
+					 var willBlock = target.item.WillBlock();
+					 var neighbourScore = willBlock ? Tools.NeighbourScore(target.item.Cell, pathGrid, mapWidth, planned) : 100;
+					 return neighbourScore * 10000 + target.materialScore;
+				 })
+				 .Select(target => target.item);
 		}
 
 		public bool IsForbiddenCell(Map map, IntVec3 cell)
@@ -216,7 +217,6 @@ namespace AchtungMod
 
 			if (condition == JobCondition.InterruptForced)
 			{
-				Log.Warning($"Forced job {lastJob} for {pawn} ended unexpected with {condition}");
 				Messages.Message("Forced work of " + pawn.Name.ToStringShort + " was interrupted.", MessageTypeDefOf.RejectInput);
 				forcedWork.Remove(pawn);
 				return false;
@@ -285,19 +285,19 @@ namespace AchtungMod
 					count = addedThings.Count();
 
 					var currentThingCells = addedThings
-						.SelectMany(thing => thing.AllCells())
-						.Distinct();
+						 .SelectMany(thing => thing.AllCells())
+						 .Distinct();
 
 					var surroundingCells = currentThingCells
-						.SelectMany(cell => Nearby(ref cell))
-						.Distinct();
+						 .SelectMany(cell => Nearby(ref cell))
+						 .Distinct();
 					// reinclude current cells so non-complete items are completed
 					//.Except(currentThingCells);
 
 					var newThings = surroundingCells
-						.SelectMany(cell => thingGrid.ThingsAt(cell))
-						.Distinct()
-						.Except(addedThings);
+						 .SelectMany(cell => thingGrid.ThingsAt(cell))
+						 .Distinct()
+						 .Except(addedThings);
 
 					addedThings.AddRange(newThings.Where(HasJob).ToList()); // keep termination with 'ToList()' here
 				}
@@ -319,12 +319,12 @@ namespace AchtungMod
 				count = addedCells.Count();
 
 				var surroundingCells = addedCells
-					.SelectMany(cell => Nearby(ref cell))
-					.Distinct()
-					.Except(addedCells);
+					 .SelectMany(cell => Nearby(ref cell))
+					 .Distinct()
+					 .Except(addedCells);
 
 				var addCells = surroundingCells
-					.Where(cell => HasJob(ref cell));
+					 .Where(cell => HasJob(ref cell));
 
 				addedCells.AddRange(addCells.ToList());
 			}
@@ -435,7 +435,7 @@ namespace AchtungMod
 
 		public static Job GetThingJob(this Thing thing, Pawn pawn, WorkGiver_Scanner workgiver, bool ignoreReserve = false)
 		{
-			if (workgiver.PotentialWorkThingRequest.Accepts(thing) || (workgiver.PotentialWorkThingsGlobal(pawn) != null && workgiver.PotentialWorkThingsGlobal(pawn).Contains(thing)))
+			if (workgiver.PotentialWorkThingRequest.Accepts(thing) || workgiver.PotentialWorkThingsGlobal(pawn) != null && workgiver.PotentialWorkThingsGlobal(pawn).Contains(thing))
 				if (workgiver.MissingRequiredCapacity(pawn) == null)
 					if (workgiver.HasJobOnThing(pawn, thing, true))
 					{
@@ -443,11 +443,11 @@ namespace AchtungMod
 						if (job != null)
 						{
 							var ignorable = workgiver.Ignorable();
-							if ((Achtung.Settings.ignoreForbidden && ignorable) || thing.IsForbidden(pawn) == false)
-								if ((Achtung.Settings.ignoreRestrictions && ignorable) || thing.Position.InAllowedArea(pawn))
+							if (Achtung.Settings.ignoreForbidden && ignorable || thing.IsForbidden(pawn) == false)
+								if (Achtung.Settings.ignoreRestrictions && ignorable || thing.Position.InAllowedArea(pawn))
 								{
-									var ok1 = (ignoreReserve == false && pawn.CanReserveAndReach(thing, workgiver.PathEndMode, Danger.Deadly));
-									var ok2 = (ignoreReserve && pawn.CanReach(thing, workgiver.PathEndMode, Danger.Deadly));
+									var ok1 = ignoreReserve == false && pawn.CanReserveAndReach(thing, workgiver.PathEndMode, Danger.Deadly);
+									var ok2 = ignoreReserve && pawn.CanReach(thing, workgiver.PathEndMode, Danger.Deadly);
 									if (ok1 || ok2)
 										return job;
 								}

@@ -27,7 +27,7 @@ namespace AchtungMod
 			_ = base.CanStart(thePawn, clickCell);
 			if (thePawn.workSettings == null || thePawn.workSettings.GetPriority(WorkTypeDefOf.Growing) == 0) return null;
 			var cells = AllWorkAt(clickCell, thePawn, true);
-			IEnumerable<LocalTargetInfo> result = (cells != null && cells.Count() > 0) ? new List<LocalTargetInfo> { clickCell } : null;
+			IEnumerable<LocalTargetInfo> result = cells != null && cells.Count() > 0 ? new List<LocalTargetInfo> { clickCell } : null;
 
 			return result;
 		}
@@ -43,7 +43,7 @@ namespace AchtungMod
 			var failureCondition = cell.GetThingList(pawn.Map).Any(t =>
 			{
 				if (t.def == def) return true;
-				if (((t is Blueprint) || (t is Frame)) && (t.Faction == pawn.Faction)) return true;
+				if ((t is Blueprint || t is Frame) && t.Faction == pawn.Faction) return true;
 				if (t.def.BlocksPlanting() && !(t is Plant)) return true;
 				if (t.def.BlocksPlanting() && t is Plant && t.def.plant.harvestWork >= maxHarvestWork) return true;
 				return false;
@@ -72,7 +72,7 @@ namespace AchtungMod
 						 if (def1 == null) return false;
 
 						 var growSkills1 = thePawn.skills.GetSkill(SkillDefOf.Plants).Level;
-						 return (def1.plant.sowMinSkill <= 0 || growSkills1 >= def1.plant.sowMinSkill);
+						 return def1.plant.sowMinSkill <= 0 || growSkills1 >= def1.plant.sowMinSkill;
 					 })
 					 .Cast<IPlantToGrowSettable>()
 					 .SelectMany(g =>
@@ -103,7 +103,7 @@ namespace AchtungMod
 								}
 							}
 						}
-						zone.cells.DoIf(c => (c != cell), c => roomCells.Remove(c));
+						zone.cells.DoIf(c => c != cell, c => roomCells.Remove(c));
 					}
 					_ = roomCells.Remove(cell);
 				}
@@ -136,17 +136,13 @@ namespace AchtungMod
 
 			var zone = pawn.Map.zoneManager.ZoneAt(c) as Zone_Growing;
 			if (zone != null)
-			{
 				currentPlantDef = zone.GetPlantDefToGrow();
-			}
 			else
-			{
 				currentPlantDef = pawn.Map.listerBuildings.allBuildingsColonist
 					 .Where(b => b.OccupiedRect().Contains(c))
 					 .Cast<IPlantToGrowSettable>()
 					 .Select(b => b.GetPlantDefToGrow())
 					 .FirstOrDefault();
-			}
 			return c;
 		}
 
@@ -174,23 +170,25 @@ namespace AchtungMod
 							var t = ThingMaker.MakeThing(plant.def.plant.harvestedThingDef, null);
 							t.stackCount = count;
 							if (pawn.Faction != Faction.OfPlayer)
-							{
 								t.SetForbidden(true, true);
-							}
 							_ = GenPlace.TryPlaceThing(t, pawn.Position, pawn.Map, ThingPlaceMode.Near, null);
 							pawn.records.Increment(RecordDefOf.PlantsHarvested);
 						}
 					}
 				}
+
 				plant.PlantCollected();
 				return true;
 			}
+
 			return false;
 		}
 
 		public IEnumerable<Plant> PlantsToCutFirstAt(IntVec3 cell)
 		{
-			return cell.GetThingList(pawn.Map).Where(p => p is Plant && p.def != currentPlantDef && p.def.BlocksPlanting() && p.Destroyed == false).Cast<Plant>();
+			return cell.GetThingList(pawn.Map)
+				 .Where(p => p is Plant && p.def != currentPlantDef && p.def.BlocksPlanting() && p.Destroyed == false)
+				 .Cast<Plant>();
 		}
 
 		public override bool DoWorkToItem()

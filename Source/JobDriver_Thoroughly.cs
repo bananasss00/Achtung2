@@ -132,10 +132,10 @@ namespace AchtungMod
 		public bool CurrentItemInvalid()
 		{
 			return
-				currentItem == null ||
-				(currentItem.HasThing && currentItem.Thing.Destroyed) ||
-				currentItem.Cell.IsValid == false ||
-				(currentItem.Cell.x == 0 && currentItem.Cell.z == 0);
+				 currentItem == null ||
+				 currentItem.HasThing && currentItem.Thing.Destroyed ||
+				 currentItem.Cell.IsValid == false ||
+				 currentItem.Cell.x == 0 && currentItem.Cell.z == 0;
 		}
 
 		public void CheckJobCancelling()
@@ -147,6 +147,8 @@ namespace AchtungMod
 				return;
 			}
 
+			// TODO
+			/*
 			var breakNote = Tools.PawnOverBreakLevel(pawn);
 			if (breakNote != null)
 			{
@@ -157,6 +159,7 @@ namespace AchtungMod
 				Find.LetterStack.ReceiveLetter(LetterMaker.MakeLetter(label, "JobInterruptedBreakdown".Translate(pawn.Name.ToStringShort, breakNote), LetterDefOf.NegativeEvent, pawn));
 				return;
 			}
+			*/
 
 			if (Tools.PawnOverHealthLevel(pawn))
 			{
